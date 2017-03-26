@@ -7,6 +7,7 @@
 #include<string>
 #include<mutex>
 #include<thread>
+#include<cfloat>
 
 using namespace std;
 
