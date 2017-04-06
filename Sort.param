@@ -1,0 +1,4 @@
+path_input=E:\czl\unsort2.5.txt;                                          //参数名不可乱换
+path_output=D:\data10_output.txt;                                   //参数名不可乱换
+num_thread=4;                                       //没有多线程可以不用管这一项，用于sort
+num_char_per_file=100000000;                         //每个小文件中字符数量
