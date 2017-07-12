@@ -1,5 +1,5 @@
-#pragma once
-#pragma warning (disable : 4996)//∫ˆ¬‘itoa->_itoa
+#ifndef MILO_DTOA_H
+#define MILO_DTOA_H
 #include <assert.h>
 #include <math.h>
 #include <string.h>
@@ -426,3 +426,5 @@ inline void dtoa_milo(double value, char* buffer,char*& buffer2) {
 	}
 	buffer2 += offset;//–¥»Î÷∏’Î∆´“∆
 }
+
+#endif

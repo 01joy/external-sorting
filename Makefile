@@ -1,6 +1,8 @@
-SRC = KMerge.cpp ProducerComsumer.cpp Sort.cpp
+CXXFLAGS=-std=c++11
+
+SRC = KMerge.cpp ProducerComsumer.cpp main.cpp
 OBJS = $(SRC:.cpp=.o)
-TARGET = Sort.exe
+TARGET = sort.exe
 
 all: $(TARGET)
 
@@ -8,7 +10,7 @@ clean:
 	-rm -f $(OBJS) $(TARGET)
 
 $(OBJS): $(SRC)
-	$(CXX) -c $(SRC)
+	$(CXX) $(CXXFLAGS) -c $(SRC)
 	 	
 $(TARGET): $(OBJS)
 	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)

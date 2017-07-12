@@ -1,5 +1,6 @@
-#pragma once
-#pragma warning (disable : 4996)//ºöÂÔitoa->_itoa
+#ifndef KMERGE_H_
+#define KMERGE_H_
+
 #include<cstdio>
 #include<fstream>
 #include<ctime>
@@ -36,3 +37,4 @@ public:
 	~KMerge();
 };
 
+#endif

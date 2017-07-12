@@ -1,5 +1,5 @@
-#pragma once
-#pragma warning(disable:4996)
+#ifndef PRODUCERCOMSUMER_H_
+#define PRODUCERCOMSUMER_H_
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
@@ -13,7 +13,7 @@
 #include <cctype>
 using namespace std;
 
-#define LL long long
+typedef long long LL;
 
 //C++11生产者消费者模型参考 http://www.cnblogs.com/haippy/p/3252092.html
 class ProducerComsumer
@@ -64,3 +64,4 @@ public:
 	~ProducerComsumer();
 };
 
+#endif

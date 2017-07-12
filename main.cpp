@@ -11,7 +11,6 @@
 #include"ProducerComsumer.h"
 #include"KMerge.h"
 using namespace std;
-#pragma warning (disable : 4996)//忽略itoa->_itoa
 
 int MAX_CHAR_NUM_PER_FILE;//每次读取字符数量
 const int MAX_CHAR_NUM_PER_LINE=30;//一个条目最大的字符数，可根据实际输入文件修改
@@ -94,10 +93,15 @@ int read_param()
 	return 0;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-	time_t start_t = clock();
+	if(argc != 2) {
+		cout << "Usage:" << endl
+			 << argv[0] << " parameter.txt" << endl;
+		return 0;
+	}
 
+	time_t start_time = clock();
 	if(read_param()==0)
 	{
 		printf("一个读线程和%d个排序线程正在工作...\n", sort_thread_num);
@@ -117,7 +121,7 @@ int main()
 		threads.clear();
 		file_input.close();
 		time_t tmp_t = clock();
-		printf("\n分成小文件并调入内存排序用时%.2f秒\n", (float)(tmp_t - start_t) / CLOCKS_PER_SEC);
+		printf("\n分成小文件并调入内存排序用时%.2f秒\n", (float)(tmp_t - start_time) / CLOCKS_PER_SEC);
 
 		KMerge km(MAX_CHAR_NUM_PER_LINE);
 
@@ -136,7 +140,7 @@ int main()
 
 		printf("归并用时%.2f秒\n", (float)(clock() - tmp_t) / CLOCKS_PER_SEC);
 
-		printf("\n排序完成，总用时%.2f秒，共发现%d个非法条目\n", (float)(clock() - start_t) / CLOCKS_PER_SEC, pc.get_bad_num());
+		printf("\n排序完成，总用时%.2f秒，共发现%d个非法条目\n", (float)(clock() - start_time) / CLOCKS_PER_SEC, pc.get_bad_num());
 	
 	
 		for (int i = 0; i < num_file; i++)
