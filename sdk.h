@@ -20,12 +20,12 @@ public:
 	}
 	std::string path_input_;
 	std::string path_output_;
-	int num_thread;
-	int max_char_per_file;
-	int max_char_per_line;
-	int max_double_per_file;
+	int num_thread_;
+	int max_char_per_file_;
+	int max_char_per_line_;
+	int max_double_per_file_;
 private:
-	SearchParameter() : path_input_(""), path_output_(""), num_thread(1), max_char_per_file(100000000), max_char_per_line(30), max_double_per_file(max_char_per_file / 15) {};
+	SearchParameter() : path_input_(""), path_output_(""), num_thread_(1), max_char_per_file_(100000000), max_char_per_line_(30), max_double_per_file_(max_char_per_file_ / 15) {};
 	SearchParameter(const SearchParameter&){};
 	SearchParameter& operator=(const SearchParameter&) {};
 	~SearchParameter() {};

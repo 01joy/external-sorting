@@ -36,10 +36,10 @@ bool ParseParamFile(const string& path)
 		string value = line.substr(pos + 1, line.find(";") - pos - 1);
 		if(key == "path_input") sp.path_input_ = value;
 		else if(key == "path_output") sp.path_output_ = value;
-		else if(key == "num_thread") sp.num_thread = stoi(value);
+		else if(key == "num_thread") sp.num_thread_ = stoi(value);
 		else if(key == "max_char_per_file") {
-			sp.max_char_per_file = stoi(value);
-			sp.max_double_per_file = sp.max_char_per_file / 15;
+			sp.max_char_per_file_ = stoi(value);
+			sp.max_double_per_file_ = sp.max_char_per_file_ / 15;
 		}
 	}
 	param_file.close();
