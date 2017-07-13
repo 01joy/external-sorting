@@ -10,88 +10,9 @@
 #include<cfloat>
 #include"ProducerComsumer.h"
 #include"KMerge.h"
+#include"sdk.h"
 using namespace std;
 
-int MAX_CHAR_NUM_PER_FILE;//每次读取字符数量
-const int MAX_CHAR_NUM_PER_LINE=30;//一个条目最大的字符数，可根据实际输入文件修改
-int MAX_DOUBLE_NUM_PER_FILE;//每个文件中double的最大数量<=MAX_CHAR_NUM_PER_FILE/15
-
-string path_input,path_output;//分别是输入，输出文件路径
-int sort_thread_num;//排序线程数
-
-//判断path路径的文件是否存在
-bool is_file_exist(string path)
-{
-	ifstream file(path);
-	if(!file)
-	{
-		file.close();
-		return false;
-	}
-	file.close();
-	return true;
-}
-
-//读取配置参数，不同返回值代表不同出错情况，返回0代表成功，具体看程序
-int read_param()
-{
-	printf("读取配置参数...\n");
-
-	ifstream param_file("Sort.param");
-	if(!param_file)
-	{
-		printf("配置文件不存在！\n");
-		return 1;
-	}
-	string s;
-	getline(param_file,s);
-	int pos=s.find("=");
-	path_input=s.substr(pos+1,s.find(";")-pos-1);
-	if(path_input=="")
-	{
-		printf("path_input值为空！\n");
-		return 2;
-	}
-	if(!is_file_exist(path_input))
-	{
-		printf("path_input文件不存在！\n");
-		return 3;
-	}
-	getline(param_file,s);
-	pos=s.find("=");
-	path_output=s.substr(pos+1,s.find(";")-pos-1);
-	if(path_output=="")
-	{
-		printf("path_output值为空！\n");
-		return 4;
-	}
-	getline(param_file,s);
-	pos=s.find("=");
-	s=s.substr(pos+1,s.find(";")-pos-1);
-	if(s!="")
-		sort_thread_num=atoi(s.c_str());
-
-	getline(param_file, s);
-	pos = s.find("=");
-	s = s.substr(pos + 1, s.find(";") - pos - 1);
-	if(s!="")
-	{
-		MAX_CHAR_NUM_PER_FILE=atoi(s.c_str());
-		if(MAX_CHAR_NUM_PER_FILE<MAX_CHAR_NUM_PER_LINE)
-		{
-			printf("num_char_per_file值必须大于%d\n",MAX_CHAR_NUM_PER_LINE);
-			return 5;
-		}
-		MAX_DOUBLE_NUM_PER_FILE=MAX_CHAR_NUM_PER_FILE/15;//15分之一
-	}
-	else
-	{
-		printf("num_char_per_file值为空！\n");
-		return 6;
-	}
-	param_file.close();
-	return 0;
-}
 
 int main(int argc, char *argv[])
 {
@@ -102,20 +23,23 @@ int main(int argc, char *argv[])
 	}
 
 	time_t start_time = clock();
-	if(read_param()==0)
-	{
-		printf("一个读线程和%d个排序线程正在工作...\n", sort_thread_num);
 
-		ProducerComsumer pc(2, MAX_CHAR_NUM_PER_FILE, MAX_CHAR_NUM_PER_LINE, MAX_DOUBLE_NUM_PER_FILE);//仓库大小为2
-		ifstream file_input(path_input,ios::binary);
+	if(!ParseParamFile(argv[1])) {
+
+		SearchParameter &sp = SearchParameter::GetInstance();
+
+		cout << "1 reading thread and " << sp.num_thread << "sorting threads are working..." << endl;
+
+		ProducerComsumer pc(2, sp.max_char_per_file, sp.max_char_per_line, sp.max_double_per_file);//仓库大小为2
+		ifstream file_input(sp.path_input_,ios::binary);
 		thread producer(bind(&ProducerComsumer::ProducerTask, &pc, ref(file_input)));
 
 		vector<thread> threads;
-		for (int i = 0; i < sort_thread_num;i++)//匿名thread参考：http://my.oschina.net/zhangjie830621/blog/188699
+		for (int i = 0; i < sp.num_thread; i++)//匿名thread参考：http://my.oschina.net/zhangjie830621/blog/188699
 			threads.push_back(thread(bind(&ProducerComsumer::ConsumerTask, &pc)));
 
 		producer.join();
-		for (int i = 0; i < sort_thread_num; i++)
+		for (int i = 0; i < sp.num_thread; i++)
 			threads[i].join();
 
 		threads.clear();
@@ -123,7 +47,7 @@ int main(int argc, char *argv[])
 		time_t tmp_t = clock();
 		printf("\n分成小文件并调入内存排序用时%.2f秒\n", (float)(tmp_t - start_time) / CLOCKS_PER_SEC);
 
-		KMerge km(MAX_CHAR_NUM_PER_LINE);
+		KMerge km(sp.max_char_per_line);
 
 		int num_file = pc.get_file_num();
 		printf("\n终极%d路归并...\n", num_file);
@@ -136,7 +60,7 @@ int main(int argc, char *argv[])
 			sprintf(out_name, "%d", i);
 			final_path_inputs.push_back(out_name);
 		}
-		km.k_merge_to_str(final_path_inputs, path_output);
+		km.k_merge_to_str(final_path_inputs, sp.path_output_);
 
 		printf("归并用时%.2f秒\n", (float)(clock() - tmp_t) / CLOCKS_PER_SEC);
 
