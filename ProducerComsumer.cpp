@@ -1,5 +1,6 @@
 #include "ProducerComsumer.h"
 
+using namespace std;
 
 ProducerComsumer::ProducerComsumer(int kItemRepositorySize, int MAX_CHAR_NUM_PER_FILE, int MAX_CHAR_NUM_PER_LINE, int MAX_DOUBLE_NUM_PER_FILE)
 {
@@ -20,215 +21,6 @@ ProducerComsumer::ProducerComsumer(int kItemRepositorySize, int MAX_CHAR_NUM_PER
 	DOUBLE_SIZE = sizeof(double);
 }
 
-//判断字符串*c是否是合法条目
-bool ProducerComsumer::is_number(char * c)
-{
-	if (!isdigit(c[0]) && c[0] != '-'&&c[0] != '+')//开头可以是加号+
-		return false;
-	int i = 1, ep = -1, Ep = -1, dotp = -1;//i为c的下标，后3个分别为字符'e','E','.'的位置
-	char cc = *(c + i);//当前字符
-	while (cc != '\0')
-	{
-		if (cc == '.')
-		{
-			if (dotp == -1)
-				dotp = i;
-			else//有多个点.
-				return false;
-		}
-		else if (cc == 'e')
-		{
-			if (dotp == -1)//e出现在小数点的前面
-				return false;
-			if (ep != -1 || Ep != -1)
-				return false;
-			char tmp = *(c + i + 1);
-			ep = i;
-			if (tmp == '+' || tmp=='-')
-			{
-				i++;
-			}
-		}
-		else if (cc == 'E')
-		{
-			if (dotp == -1)
-				return false;
-			if (ep != -1 || Ep != -1)
-				return false;
-			char tmp = *(c + i + 1);
-			Ep = i;
-			if (tmp == '+' || tmp=='-')
-			{
-				i++;
-			}
-		}
-		else if (!isdigit(cc))
-			return false;
-
-		i++;
-		cc = *(c + i);
-	}
-	return true;
-}
-
-//将*p字符串转换为double，修改自 http://www.leapsecond.com/tools/fast_atof.c
-double ProducerComsumer::fast_atof(const char *p)
-{
-	int frac , digit_num = 0;//frac指示是否为小数，digit_num数字个数
-	double sign, value, scale;//sign指示符号，value尾数的值，scale指数的值
-
-	// Get sign, if any.
-
-	sign = 1.0;
-	if (*p == '-') {
-		sign = -1.0;
-		p += 1;
-
-	}
-	else if (*p == '+') {
-		p += 1;
-	}
-
-	// Get digits before decimal point or exponent, if any.
-
-	for (value = 0.0; isdigit(*p); p += 1) {
-		value = value * 10.0 + (*p - '0');
-		digit_num++;
-	}
-
-	// Get digits after decimal point, if any.
-
-	if (*p == '.') {
-		double pow10 = 10.0;
-		p += 1;
-		while (isdigit(*p)) {
-			digit_num++;
-			if (digit_num == 11 && (*p) == '5')
-				value += 6 / pow10;//如果第11位是‘5’，强行改成‘6’，这样就不会有四舍五入的问题
-			else
-				value += (*p - '0') / pow10;
-			pow10 *= 10.0;
-			p += 1;
-		}
-	}
-
-	// Handle exponent, if any.
-
-	frac = 0;
-	scale = 1.0;
-	if ((*p == 'e') || (*p == 'E')) {
-		unsigned int expon;
-
-		// Get sign of exponent, if any.
-
-		p += 1;
-		if (*p == '-') {
-			frac = 1;
-			p += 1;
-
-		}
-		else if (*p == '+') {
-			p += 1;
-		}
-
-		// Get digits of exponent, if any.
-
-		for (expon = 0; isdigit(*p); p += 1) {
-			expon = expon * 10 + (*p - '0');
-		}
-		//if (expon > 308) expon = 308;//合法的浮点数，不可能超过308
-
-		// Calculate scaling factor.
-
-		while (expon >= 50) { scale *= 1E50; expon -= 50; }
-		while (expon >= 8) { scale *= 1E8;  expon -= 8; }
-		while (expon >   0) { scale *= 10.0; expon -= 1; }
-	}
-
-	// Return signed and scaled floating point result.
-
-	return sign * (frac ? (value / scale) : (value * scale));
-}
-
-//对double array[]数组基数排序，n为数组大小，参考 http://stackoverflow.com/questions/2685035/is-there-a-good-radixsort-implementation-for-floats-in-c-sharp
-void ProducerComsumer::radix_sort(double array[], int n)
-{
-	LL *t = new LL[n];
-	LL *a = new LL[n];
-	for (int i = 0; i < n; i++)
-		a[i] = *(LL*)(&array[i]);//将double的二进制转换为long long
-
-	int groupLength = 16;//可自定义
-	int bitLength = 64;
-	int len = 1 << groupLength;
-
-	int *count = new int[len];
-	int *pref = new int[len];
-	int groups = bitLength / groupLength;
-	int mask = len - 1;
-	int negatives = 0, positives = 0;
-
-	for (int c = 0, shift = 0; c < groups; c++, shift += groupLength)
-	{
-		// reset count array 
-		for (int j = 0; j < len; j++)
-			count[j] = 0;
-
-		// counting elements of the c-th group 
-		for (int i = 0; i < n; i++)
-		{
-			count[(a[i] >> shift) & mask]++;
-
-			// additionally count all negative 
-			// values in first round
-			if (c == 0 && a[i] < 0)
-				negatives++;
-		}
-		if (c == 0) positives = n - negatives;
-
-		// calculating prefixes
-		pref[0] = 0;
-		for (int i = 1; i < len; i++)
-			pref[i] = pref[i - 1] + count[i - 1];
-
-		// from a[] to t[] elements ordered by c-th group 
-		for (int i = 0; i < n; i++)
-		{
-			// Get the right index to sort the number in
-			int index = pref[(a[i] >> shift) & mask]++;
-
-			if (c == groups - 1)
-			{
-				// We're in the last (most significant) group, if the
-				// number is negative, order them inversely in front
-				// of the array, pushing positive ones back.
-				if (a[i] < 0)
-					index = positives - (index - negatives) - 1;
-				else
-					index += negatives;
-			}
-			t[index] = a[i];
-		}
-
-		// a[]=t[] and start again until the last group 
-		if (c != groups - 1)
-		{
-			for (int j = 0; j < n; j++)
-				a[j] = t[j];
-		}
-
-	}
-	delete[] a;
-	delete[] count;
-	delete[] pref;
-
-	// Convert back the ints to the double array
-	for (int i = 0; i < n; i++)
-		array[i] = *(double*)(&t[i]);//重新把long long 的二进制转换为double
-
-	delete[] t;
-}
-
 //对*buffer字符串按'\n'分割，转换为double，然后排序，生成第order个排好序的小文件；len是*buffer的长度
 void ProducerComsumer::partition_sort(char *buffer,int len, int order)
 {
@@ -246,9 +38,9 @@ void ProducerComsumer::partition_sort(char *buffer,int len, int order)
 		}
 		pch[j] = '\0';
 		i++;
-		if (is_number(pch))
+		if (IsLegalNumber(pch))
 		{
-			dbuffer[k++] = fast_atof(pch);
+			dbuffer[k++] = FastAToF(pch);
 		}
 		else
 		{
@@ -259,7 +51,7 @@ void ProducerComsumer::partition_sort(char *buffer,int len, int order)
 	delete[] buffer;
 	bad[order] = bad_tmp;//当i≠j时，可以同时写入bad[i]和bad[j]，因为地址不同
 	//sort(dbuffer, dbuffer + k);
-	radix_sort(dbuffer, k);
+	RadixSort(dbuffer, k);
 	
 	sprintf(out_name, "%d", order);
 	ofstream file_output(out_name, ios::binary);//二进制写入，更快

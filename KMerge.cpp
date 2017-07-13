@@ -1,6 +1,7 @@
 #include "KMerge.h"
-#include"milo_dtoa.h"
+#include "milo_dtoa.h"
 
+using namespace std;
 
 KMerge::KMerge(int MAX_CHAR_NUM_PER_LINE)
 {

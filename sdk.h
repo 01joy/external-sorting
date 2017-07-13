@@ -12,6 +12,8 @@
 #include<string>
 #include<fstream>
 
+typedef long long LL;
+
 class SearchParameter {
 public:
 	static SearchParameter& GetInstance() {
@@ -36,6 +38,12 @@ private:
 static inline bool DoesFileExist(const std::string path);
 
 bool ParseParamFile(const std::string& path);
+
+bool IsLegalNumber(const char *line);
+
+double FastAToF(const char *p);
+
+void RadixSort(double array[], int n);
 
 
 #endif /* SDK_H_ */

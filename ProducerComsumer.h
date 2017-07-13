@@ -11,9 +11,8 @@
 #include <vector>
 #include <string>
 #include <cctype>
-using namespace std;
+#include "sdk.h"
 
-typedef long long LL;
 
 //C++11生产者消费者模型参考 http://www.cnblogs.com/haippy/p/3252092.html
 class ProducerComsumer
@@ -27,25 +26,19 @@ private:
 	int DOUBLE_SIZE;//sizeof(double);
 	bool all_done;//生产者是否完成
 	int num_file;//生成小文件数量
-	vector<int> bad;//bad[i]保存了第i个文件中非法条目的数量，因为是多线程，所以要分别记录，如果同时修改bad的话，多个线程抢这个锁，影响效率
+	std::vector<int> bad;//bad[i]保存了第i个文件中非法条目的数量，因为是多线程，所以要分别记录，如果同时修改bad的话，多个线程抢这个锁，影响效率
 
 	
-	vector<char*> item_buffer;//缓冲区指针
-	vector<int> buffer_len;//每个缓冲区的实际长度
+	std::vector<char*> item_buffer;//缓冲区指针
+	std::vector<int> buffer_len;//每个缓冲区的实际长度
 	int read_position;//读缓冲区位置
 	int write_position;//写缓冲区位置
-	mutex mtx;//缓冲区互斥锁
-	condition_variable repo_not_full;//条件变量：缓冲区不满
-	condition_variable repo_not_empty;//条件变量：缓冲区不空
+	std::mutex mtx;//缓冲区互斥锁
+	std::condition_variable repo_not_full;//条件变量：缓冲区不满
+	std::condition_variable repo_not_empty;//条件变量：缓冲区不空
 
 public:
 	ProducerComsumer(int kItemRepositorySize, int MAX_CHAR_NUM_PER_FILE, int MAX_CHAR_NUM_PER_LINE, int MAX_DOUBLE_NUM_PER_FILE);
-
-	bool is_number(char * c);
-
-	double fast_atof(const char *p);
-
-	void radix_sort(double array[], int n);
 
 	void partition_sort(char *buffer, int len, int order);
 
@@ -53,7 +46,7 @@ public:
 
 	bool ConsumeItem();
 
-	void ProducerTask(ifstream& is);
+	void ProducerTask(std::ifstream& is);
 
 	void ConsumerTask();
 

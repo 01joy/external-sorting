@@ -10,8 +10,6 @@
 #include<thread>
 #include<cfloat>
 
-using namespace std;
-
 class KMerge
 {
 private:
@@ -21,7 +19,7 @@ private:
 	int CHAR_SIZE;//sizeof(char);
 	int DOUBLE_SIZE;//sizeof(double);
 	
-	mutex mtx;
+	std::mutex mtx;
 
 public:
 	KMerge(int MAX_CHAR_NUM_PER_LINE);
@@ -30,9 +28,9 @@ public:
 
 	void create_loser_tree(int *ls, double *b, int num_file);
 
-	bool write_double(ofstream& os, double* d, int n);
+	bool write_double(std::ofstream& os, double* d, int n);
 
-	void k_merge_to_str(vector<string> path_inputs, string path_output);
+	void k_merge_to_str(std::vector<std::string> path_inputs, std::string path_output);
 	
 	~KMerge();
 };
