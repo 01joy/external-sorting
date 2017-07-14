@@ -42,10 +42,10 @@ public:
 	bool hasNextItem;
 };
 
-int InternalSort(const SearchParameter &sp, Item *item);
+int InternalSort(Item *item);
 
-void Produce(const SearchParameter &sp, BoundedBuffer& buffer, int &num_file);
+void Produce(BoundedBuffer& buffer, int &num_file);
 
-void Consume(const SearchParameter &sp, BoundedBuffer& buffer, int &num_bad);
+void Consume(BoundedBuffer& buffer, int &num_bad);
 
 #endif

@@ -30,16 +30,19 @@ Item* BoundedBuffer::Fetch() {
 
 
 //对*buffer字符串按'\n'分割，转换为double，然后排序，生成第order个排好序的小文件；len是*buffer的长度
-int InternalSort(const SearchParameter &sp, Item *item) {
+int InternalSort(Item *item) {
+	const SearchParameter &sp = SearchParameter::GetInstance();
+
 	char *&content = item->content_;
 	const int &len = item->len_;
+	const int id = item->id_;
 
 	vector<double> nums;
 	int i = 0, num_bad = 0;
 
-	while (i != len) {
+	while (i < len) {
 		int j = i;
-		while (*(content + j) != '\n') ++j;
+		while (j < len && *(content + j) != '\n') ++j;
 
 		*(content + j) = '\0';
 
@@ -51,21 +54,22 @@ int InternalSort(const SearchParameter &sp, Item *item) {
 		}
 		i = ++j;
 	}
+
 	delete item;
 	item = NULL;
 
 	sort(nums.begin(), nums.end());
 	//RadixSort(nums);
-	
-	ofstream os(to_string(item->id_).c_str(), ios::binary);
+	cout<<"nums.size:"<<nums.size()<<endl;
+	ofstream os(to_string(id).c_str(), ios::binary);
 	os.write((char*)&nums, nums.size() * kDoubleSize);
 	os.close();
 
 	return num_bad;
 }
 
-
-void Produce(const SearchParameter &sp, BoundedBuffer& buffer, int &num_file) {
+void Produce(BoundedBuffer &buffer, int &num_file) {
+	const SearchParameter &sp = SearchParameter::GetInstance();
 	ifstream is(sp.path_input_, ios::binary);
 	num_file = 0;
 	int len;
@@ -77,6 +81,9 @@ void Produce(const SearchParameter &sp, BoundedBuffer& buffer, int &num_file) {
 		while (is.get(c) && c != '\n') {
 			content[len++] = c;
 		}
+		while (*(content + len - 1) == '\n') {
+			content[--len] = '\0';
+		}
 		Item *item = new Item(num_file++, len, content);
 		buffer.Deposit(item);
 	}
@@ -85,14 +92,12 @@ void Produce(const SearchParameter &sp, BoundedBuffer& buffer, int &num_file) {
 }
 
 
-void Consume(const SearchParameter &sp, BoundedBuffer& buffer, int &num_bad) {
+void Consume(BoundedBuffer &buffer, int &num_bad) {
 	num_bad = 0;
 	while (true) {
 		if(!buffer.hasNextItem) break;
 		Item *item = buffer.Fetch();
-		num_bad += InternalSort(sp, item);
+		num_bad += InternalSort(item);
 	}
 }
-
-
 

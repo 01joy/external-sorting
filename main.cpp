@@ -32,12 +32,12 @@ int main(int argc, char *argv[]) {
 
 		int num_file = 0;
 		BoundedBuffer buffer(2);
-		thread producer(Produce, ref(sp), ref(buffer), ref(num_file));
+		thread producer(Produce, ref(buffer), ref(num_file));
 
 		vector<thread> consumers(sp.num_thread_);
-		vector<thread> num_bad(sp.num_thread_);
+		vector<int> num_bad(sp.num_thread_);
 		for (int i = 0; i < sp.num_thread_; i++)
-			consumers[i] = thread(Consume, ref(sp), ref(buffer), ref(num_bad[i]));
+			consumers[i] = thread(Consume, ref(buffer), ref(num_bad[i]));
 
 		producer.join();
 		for (int i = 0; i < sp.num_thread_; i++)
@@ -61,11 +61,13 @@ int main(int argc, char *argv[]) {
 
 		printf("归并用时%.2f秒\n", (float)(clock() - tmp_t) / CLOCKS_PER_SEC);
 
-		//printf("\n排序完成，总用时%.2f秒，共发现%d个非法条目\n", (float)(clock() - start_time) / CLOCKS_PER_SEC, pc.get_bad_num());
+		printf("\n排序完成，总用时%.2f秒，共发现%d个非法条目\n", (float)(clock() - start_time) / CLOCKS_PER_SEC, accumulate(num_bad.begin(),num_bad.end(),0));
 	
 	
+/*
 		for (int i = 0; i < num_file; i++)
 			remove(final_path_inputs[i].c_str());//删除中间文件
+*/
 	}
 	
 	system("pause");

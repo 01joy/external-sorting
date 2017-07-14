@@ -1,4 +1,4 @@
-path_input=D:\Job\Project\test\data\unsort.txt;                                          //参数名不可乱换
-path_output=D:\Job\Project\test\data\my_sort.txt;                                   //参数名不可乱换
+path_input=G:\CPP\workspace\data\unsort.txt;                                          //参数名不可乱换
+path_output=G:\CPP\workspace\data\my_sort.txt;                                   //参数名不可乱换
 num_thread=4;                                       //没有多线程可以不用管这一项，用于sort
 max_char_per_file=100000000;                         //每个小文件中字符数量

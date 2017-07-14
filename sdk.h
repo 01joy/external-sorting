@@ -43,7 +43,10 @@ struct Item {
 	char *content_;
 	Item(): id_(0), len_(0), content_(NULL) {};
 	Item(int id, int len, char *content): id_(id), len_(len), content_(content) {};
-	~Item() { delete content_; };
+	~Item() {
+		delete content_;
+		content_ = NULL;
+	};
 };
 
 
