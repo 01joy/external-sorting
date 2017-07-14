@@ -14,6 +14,9 @@
 
 typedef long long LL;
 
+const int kCharSize = sizeof(char);
+const int kDoubleSize = sizeof(double);
+
 class SearchParameter {
 public:
 	static SearchParameter& GetInstance() {
@@ -31,6 +34,16 @@ private:
 	SearchParameter(const SearchParameter&){};
 	SearchParameter& operator=(const SearchParameter&) {};
 	~SearchParameter() {};
+};
+
+
+struct Item {
+	int id_;
+	int len_;
+	char *content_;
+	Item(): id_(0), len_(0), content_(NULL) {};
+	Item(int id, int len, char *content): id_(id), len_(len), content_(content) {};
+	~Item() { delete content_; };
 };
 
 

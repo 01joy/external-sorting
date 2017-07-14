@@ -1,6 +1,6 @@
 CXXFLAGS=-std=c++11
 
-SRC = sdk.cpp KMerge.cpp ProducerComsumer.cpp main.cpp
+SRC = sdk.cpp bounded_buffer.cpp KMerge.cpp main.cpp
 OBJS = $(SRC:.cpp=.o)
 TARGET = sort.exe
 
