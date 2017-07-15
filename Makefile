@@ -1,6 +1,6 @@
-CXXFLAGS=-std=c++11
+CXXFLAGS= -std=c++11 -static -O3
 
-SRC = sdk.cpp bounded_buffer.cpp KMerge.cpp main.cpp
+SRC = sdk.cpp bounded_buffer.cpp loser_tree.cpp main.cpp
 OBJS = $(SRC:.cpp=.o)
 TARGET = sort.exe
 

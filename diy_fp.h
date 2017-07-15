@@ -1,13 +1,13 @@
-#ifndef MILO_DTOA_H
-#define MILO_DTOA_H
+#ifndef DIY_FP_H_
+#define DIY_FP_H_
 #include <assert.h>
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
-#include<stdlib.h>
-#include<time.h>
-#include<stdint.h>
-#include<inttypes.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 //Grisu2算法实现：https://github.com/miloyip/dtoa-benchmark
 //可对照标准Grisu2算法理解
@@ -23,8 +23,8 @@ struct DiyFp {
 			uint64_t u64;
 		} u = { d };
 
-		int biased_e = (u.u64 & kDpExponentMask) >> kDpSignificandSize;//取出指数
-		uint64_t significand = (u.u64 & kDpSignificandMask);//取出尾数
+		int biased_e = (u.u64 & kDpExponentMask) >> kDpSignificandSize;
+		uint64_t significand = (u.u64 & kDpSignificandMask);
 		if (biased_e != 0) {
 			f = significand + kDpHiddenBit;
 			e = biased_e - kDpExponentBias;
@@ -35,14 +35,12 @@ struct DiyFp {
 		}
 	}
 
-	//重载减法运算
 	DiyFp operator-(const DiyFp& rhs) const {
 		assert(e == rhs.e);
 		assert(f >= rhs.f);
 		return DiyFp(f - rhs.f, e);
 	}
 
-	//重载乘法运算
 	DiyFp operator*(const DiyFp& rhs) const {
 #if defined(_MSC_VER) && defined(_M_AMD64)
 		uint64_t h;
@@ -212,7 +210,6 @@ inline DiyFp GetCachedPower(int e, int* K) {
 	return DiyFp(kCachedPowers_F[index], kCachedPowers_E[index]);
 }
 
-//四舍五入？已丢弃
 //inline void GrisuRound(char* buffer, int len, uint64_t delta, uint64_t rest, uint64_t ten_kappa, uint64_t wp_w) {
 //	while (rest < wp_w && delta - rest >= ten_kappa &&
 //		(rest + ten_kappa < wp_w ||  /// closer
@@ -222,7 +219,6 @@ inline DiyFp GetCachedPower(int e, int* K) {
 //	}
 //}
 
-//判断数n的位数，快
 inline unsigned CountDecimalDigit32(uint32_t n) {
 	// Simple pure C++ implementation was faster than __builtin_clz version in this situation.
 	if (n < 10) return 1;
@@ -237,7 +233,6 @@ inline unsigned CountDecimalDigit32(uint32_t n) {
 	return 10;
 }
 
-//取出0~99的字符形式，查找表，快
 inline const char* GetDigitsLut() {
 	static const char cDigitsLut[200] = {
 		'0', '0', '0', '1', '0', '2', '0', '3', '0', '4', '0', '5', '0', '6', '0', '7', '0', '8', '0', '9',
@@ -254,7 +249,6 @@ inline const char* GetDigitsLut() {
 	return cDigitsLut;
 }
 
-//把K写入buffer开始的位置
 inline void WriteExponent(int K, char* buffer) {
 	if (K < 0) {
 		*buffer++ = '-';
@@ -283,10 +277,9 @@ inline void WriteExponent(int K, char* buffer) {
 		*buffer++ = '0' + static_cast<char>(K);
 	}
 
-	*buffer = '\n';//每个数以\n分割
+	*buffer = '\n';
 }
 
-//Grisu2算法关键部分，用于产生浮点数的每一位数字
 inline void DigitGen(const DiyFp& W, const DiyFp& Mp, uint64_t delta, char* buffer, int* len, int* K) {
 	static const uint32_t kPow10[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 	const DiyFp one(uint64_t(1) << -Mp.e, Mp.e);
@@ -296,7 +289,7 @@ inline void DigitGen(const DiyFp& W, const DiyFp& Mp, uint64_t delta, char* buff
 	int kappa = CountDecimalDigit32(p1),d;
 	*len = 0;
 
-	bool done = false;//陈镇霖添加，如果第一个while成功的话为true
+	bool done = false;
 
 	while (kappa > 0) {
 		//uint32_t d;
@@ -322,13 +315,13 @@ inline void DigitGen(const DiyFp& W, const DiyFp& Mp, uint64_t delta, char* buff
 		}
 		if (d || *len)
 			buffer[(*len)++] = '0' + d;
-		if (*len == 1)(*len)++;//陈镇霖跳过小数点
+		if (*len == 1)(*len)++; // skip dot
 		kappa--;
 		uint64_t tmp = (((uint64_t)p1) << -one.e) + p2;
 		if (tmp <= delta) {
 			*K += kappa;
 			done = true;
-			//GrisuRound(buffer, *len, delta, tmp, static_cast<uint64_t>(kPow10[kappa]) << -one.e, wp_w.f);//标准Grisu2算法并没有这一步
+			//GrisuRound(buffer, *len, delta, tmp, static_cast<uint64_t>(kPow10[kappa]) << -one.e, wp_w.f);
 			break;
 		}
 	}
@@ -342,9 +335,9 @@ inline void DigitGen(const DiyFp& W, const DiyFp& Mp, uint64_t delta, char* buff
 			d = p2 >> -one.e;
 			if (d || *len)
 				buffer[(*len)++] = '0' + d;
-			if (*len == 1)(*len)++;//陈镇霖跳过小数点
+			if (*len == 1)(*len)++; //skip dot
 			kappa--;
-			if (*len > 11)break;//陈镇霖添加
+			if (*len > 11)break;
 			p2 &= one.f - 1;
 		} while (p2 > delta);
 		*K += kappa;
@@ -381,7 +374,6 @@ inline void DigitGen(const DiyFp& W, const DiyFp& Mp, uint64_t delta, char* buff
 	WriteExponent((*len) + (*K) - 1, &buffer[12]);//因为科学计数法的小数点前还有一个数字，所以指数是length + k-1
 }
 
-//这是Grisu2算法的主流程
 inline void Grisu2(double value, char* buffer, int* length, int* K) {
 	const DiyFp v(value);
 	DiyFp w_m, w_p;
@@ -397,7 +389,7 @@ inline void Grisu2(double value, char* buffer, int* length, int* K) {
 }
 
 //相当于自定义sprintf，将value转换为符合%16.9E的格式写入buffer，并使指针往后移；buffer2=&buffer
-inline void dtoa_milo(double value, char* buffer,char*& buffer2) {
+inline void MiloDToA(double value, char* buffer,char*& buffer2) {
 	// Not handling NaN and inf
 	//assert(!isnan(value));
 	//assert(!isinf(value));

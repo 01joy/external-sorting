@@ -8,9 +8,10 @@
 #ifndef SDK_H_
 #define SDK_H_
 
-#include<iostream>
-#include<string>
-#include<fstream>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <vector>
 
 typedef long long LL;
 
@@ -59,7 +60,7 @@ bool IsLegalNumber(const char *line);
 
 double FastAToF(const char *p);
 
-void RadixSort(double array[], int n);
+void RadixSort(std::vector<double> &nums);
 
 
 #endif /* SDK_H_ */

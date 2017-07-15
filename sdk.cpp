@@ -76,8 +76,7 @@ bool IsLegalNumber(const char *line) {
 }
 
 // http://www.leapsecond.com/tools/fast_atof.c
-double FastAToF(const char *p)
-{
+double FastAToF(const char *p) {
 	int frac, digit_num = 0;//frac指示是否为小数，digit_num数字个数
 	double sign, value, scale;//sign指示符号，value尾数的值，scale指数的值
 
@@ -155,18 +154,19 @@ double FastAToF(const char *p)
 }
 
 // http://stackoverflow.com/questions/2685035/is-there-a-good-radixsort-implementation-for-floats-in-c-sharp
-void RadixSort(double array[], int n) {
-	LL *t = new LL[n];
-	LL *a = new LL[n];
-	for (int i = 0; i < n; i++)
-		a[i] = *(LL*)(&array[i]);//将double的二进制转换为long long
+void RadixSort(std::vector<double> &nums) {
+	int n = nums.size();
+	vector<LL> t(n), a(n);
 
-	int groupLength = 16;//可自定义
+	for (int i = 0; i < n; i++)
+		a[i] = *(LL*)(&nums[i]);
+
+	int groupLength = 16;
 	int bitLength = 64;
 	int len = 1 << groupLength;
 
-	int *count = new int[len];
-	int *pref = new int[len];
+	vector<int> count(len), pref(len);
+
 	int groups = bitLength / groupLength;
 	int mask = len - 1;
 	int negatives = 0, positives = 0;
@@ -193,13 +193,11 @@ void RadixSort(double array[], int n) {
 			pref[i] = pref[i - 1] + count[i - 1];
 
 		// from a[] to t[] elements ordered by c-th group
-		for (int i = 0; i < n; i++)
-		{
+		for (int i = 0; i < n; i++) {
 			// Get the right index to sort the number in
 			int index = pref[(a[i] >> shift) & mask]++;
 
-			if (c == groups - 1)
-			{
+			if (c == groups - 1) {
 				// We're in the last (most significant) group, if the
 				// number is negative, order them inversely in front
 				// of the array, pushing positive ones back.
@@ -218,13 +216,8 @@ void RadixSort(double array[], int n) {
 		}
 
 	}
-	delete[] a;
-	delete[] count;
-	delete[] pref;
 
 	// Convert back the ints to the double array
 	for (int i = 0; i < n; i++)
-		array[i] = *(double*)(&t[i]);//重新把long long 的二进制转换为double
-
-	delete[] t;
+		nums[i] = *(double*)(&t[i]);
 }

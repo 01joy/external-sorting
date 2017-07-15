@@ -1,16 +1,10 @@
-#include<iostream>
-#include<string>
-#include<algorithm>
-#include<fstream>
-#include<ctime>
-#include<cstdio>
-#include<cstdlib>
-#include<vector>
-#include<cctype>
-#include<cfloat>
-
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <ctime>
+#include <vector>
 #include "bounded_buffer.h"
-#include "KMerge.h"
+#include "loser_tree.h"
 #include "sdk.h"
 using namespace std;
 
@@ -43,31 +37,22 @@ int main(int argc, char *argv[]) {
 		for (int i = 0; i < sp.num_thread_; i++)
 			consumers[i].join();
 
-		time_t tmp_t = clock();
-		printf("\n分成小文件并调入内存排序用时%.2f秒\n", (float)(tmp_t - start_time) / CLOCKS_PER_SEC);
+		time_t partition_sort_time = clock();
+		cout << "partition and sort time: " << (double)(partition_sort_time - start_time) / CLOCKS_PER_SEC << endl;
 
-		KMerge km(sp.max_char_per_line_);
+		cout << "merging " << num_file << " files..." << endl;
+		LoserTree tree;
+		tree.Merge(num_file);
 
-		printf("\n终极%d路归并...\n", num_file);
+		time_t merge_time = clock();
 
-		char out_name[3];
-		vector<string> final_path_inputs;
-
-		for (int i = 0; i < num_file; i++) {
-			sprintf(out_name, "%d", i);
-			final_path_inputs.push_back(out_name);
-		}
-		km.k_merge_to_str(final_path_inputs, sp.path_output_);
-
-		printf("归并用时%.2f秒\n", (float)(clock() - tmp_t) / CLOCKS_PER_SEC);
-
-		printf("\n排序完成，总用时%.2f秒，共发现%d个非法条目\n", (float)(clock() - start_time) / CLOCKS_PER_SEC, accumulate(num_bad.begin(),num_bad.end(),0));
+		cout << "merge time: " << (double)(merge_time - partition_sort_time) / CLOCKS_PER_SEC << endl
+			 << "total time: " << (double)(merge_time - start_time) / CLOCKS_PER_SEC << endl
+		     << "illegal number: " << accumulate(num_bad.begin(),num_bad.end(),0) - 1 << endl;
+		// 非法数目减一的原因是，输入数据末尾有一个\n,Produce对每一块数据加了一个\n\0，导致最后多出一个\n
 	
-	
-/*
 		for (int i = 0; i < num_file; i++)
-			remove(final_path_inputs[i].c_str());//删除中间文件
-*/
+			remove(to_string(i).c_str()); // remove tmp files
 	}
 	
 	system("pause");
