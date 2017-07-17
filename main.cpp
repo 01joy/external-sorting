@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <ctime>
 #include <vector>
+#include <numeric>
 #include "bounded_buffer.h"
 #include "loser_tree.h"
 #include "sdk.h"
@@ -48,7 +49,7 @@ int main(int argc, char *argv[]) {
 
 		cout << "merge time: " << (double)(merge_time - partition_sort_time) / CLOCKS_PER_SEC << endl
 			 << "total time: " << (double)(merge_time - start_time) / CLOCKS_PER_SEC << endl
-		     << "illegal number: " << accumulate(num_bad.begin(),num_bad.end(),0) - 1 << endl;
+		     << "illegal number: " << accumulate(num_bad.begin(), num_bad.end(), 0) - 1 << endl;
 		// 非法数目减一的原因是，输入数据末尾有一个\n,Produce对每一块数据加了一个\n\0，导致最后多出一个\n
 	
 		for (int i = 0; i < num_file; i++)
