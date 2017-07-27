@@ -173,17 +173,16 @@ void RadixSort(std::vector<double> &nums) {
 
 	for (int c = 0, shift = 0; c < groups; c++, shift += groupLength) {
 		// reset count array
-		for (int j = 0; j < len; j++)
-			count[j] = 0;
+		fill(count.begin(), count.end(), 0);
 
 		// counting elements of the c-th group
 		for (int i = 0; i < n; i++) {
-			count[(a[i] >> shift) & mask]++;
+			++count[(a[i] >> shift) & mask];
 
 			// additionally count all negative
 			// values in first round
 			if (c == 0 && a[i] < 0)
-				negatives++;
+				++negatives;
 		}
 		if (c == 0) positives = n - negatives;
 
@@ -202,7 +201,7 @@ void RadixSort(std::vector<double> &nums) {
 				// number is negative, order them inversely in front
 				// of the array, pushing positive ones back.
 				if (a[i] < 0)
-					index = positives - (index - negatives) - 1;
+					index = n - index - 1;
 				else
 					index += negatives;
 			}
